@@ -16,6 +16,7 @@ app.use(express.json());
 const Department = require('./models/Department');
 const Role = require('./models/Role');
 const Employee = require('./models/Employee');
+const Record = require("./models/Record");
 
 // routes
 const ExampleRoutes = require('./routes/ExampleRoutes');
