@@ -8,6 +8,7 @@ const Employee = sequelize.define("Employee", {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
+        autoIncrement: true,
     },
     name: {
         type: DataTypes.STRING,
