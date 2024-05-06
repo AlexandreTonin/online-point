@@ -36,7 +36,7 @@ module.exports = class AuthController {
 
         try {
             const newEmployee = await CreateEmployee(name, roleId, departmentId, email, hashedPassword);
-            res.json({ success: true, message: "User registered successfully", data: newEmployee });
+            res.json({ success: true, message: "User registered successfully", userId: newEmployee.id });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
