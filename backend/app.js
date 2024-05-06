@@ -2,6 +2,7 @@
 const express = require('express')
 const cors = require("cors")
 const db = require("./db/dbConnection");
+const morgan = require("morgan");
 
 // configs
 const app = express();
@@ -11,6 +12,7 @@ require("dotenv").config();
 // middlewares
 app.use(cors());
 app.use(express.json());
+app.use(morgan())
 
 // models
 const Department = require('./models/Department');
@@ -19,12 +21,14 @@ const Employee = require('./models/Employee');
 const Record = require("./models/Record");
 
 // routes
-const ExampleRoutes = require('./routes/ExampleRoutes');
-app.use('/examples', ExampleRoutes)
-
-app.get("/", (req, res) => {
-    res.status(200).json({ rota: "/" });
-});
+const RecordRoutes = require('./routes/RecordRoutes');
+const AuthRoutes = require('./routes/AuthRoutes');
+const DepartmentRoutes = require('./routes/DepartmentRoutes');
+const RoleRoutes = require('./routes/RoleRoutes');
+app.use('/record', RecordRoutes)
+app.use('/department', DepartmentRoutes)
+app.use('/role', RoleRoutes)
+app.use('/', AuthRoutes)
 
 // server
 app.listen(process.env.SERVER_PORT, () => {
