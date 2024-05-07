@@ -5,7 +5,7 @@ async function UpdateRole(roleId, roleNewData) {
   try {
     const role = await GetRole(roleId);
 
-    await Role.update(roleNewData);
+    await role.update(roleNewData);
 
     return role;
   } catch (error) {
