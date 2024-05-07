@@ -1,6 +1,7 @@
 const CheckEmail = require("../services/CheckEmail");
 const CreateEmployee = require("../services/CreateEmployee");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
+const generateToken = require("../utils/helpers/generateToken");
 
 module.exports = class AuthController {
     static async Register(req, res) {
@@ -36,9 +37,16 @@ module.exports = class AuthController {
 
         try {
             const newEmployee = await CreateEmployee(name, roleId, departmentId, email, hashedPassword);
-            res.json({ success: true, message: "User registered successfully", userId: newEmployee.id });
+            const employeeId = newEmployee.id;
+            const token = await generateToken(employeeId, email)
+            res.cookie("token", token, { httpOnly: true, secure: true});
+            res.json({ success: true, message: "User registered successfully", userId: employeeId, token: token });
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            if (error.name === 'SequelizeForeignKeyConstraintError') {
+                res.status(400).json({ success: false, message: "Role or Department is not valid." });
+            } else {
+                res.status(500).json({ success: false, message: error.message });
+            }
         }
     }
 
