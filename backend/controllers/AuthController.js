@@ -2,6 +2,7 @@ const CheckEmail = require("../services/CheckEmail");
 const CreateEmployee = require("../services/CreateEmployee");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/helpers/generateToken");
+const GetEmployee = require("../services/GetEmployee");
 
 module.exports = class AuthController {
     static async Register(req, res) {
@@ -39,7 +40,7 @@ module.exports = class AuthController {
             const newEmployee = await CreateEmployee(name, roleId, departmentId, email, hashedPassword);
             const employeeId = newEmployee.id;
             const token = await generateToken(employeeId, email)
-            res.cookie("token", token, { httpOnly: true, secure: true});
+            res.cookie("token", token, { httpOnly: true, secure: true });
             res.json({ success: true, message: "User registered successfully", userId: employeeId, token: token });
         } catch (error) {
             if (error.name === 'SequelizeForeignKeyConstraintError') {
@@ -51,8 +52,31 @@ module.exports = class AuthController {
     }
 
     static async Login(req, res) {
+        const { email, password } = req.body
+
+        if (!email) {
+            return res.status(400).json({ success: false, error: "Email is required" });
+        }
+
+        if (!password) {
+            return res.status(400).json({ success: false, error: "Password is required" });
+        }
+
+        const emailExists = await CheckEmail(email)
+
+        if (!emailExists) {
+            return res.status(400).json({ success: false, error: "This email is not registered" });
+        }
+
         try {
-            res.json({ success: true, message: "Logged successfully" });
+            const employee = await GetEmployee(null, email)
+            const employeeHashedPassword = employee.password;
+            const passwordMatch = await bcrypt.compare(password, employeeHashedPassword)
+            if (passwordMatch) {
+                res.json({ success: true, message: "Logged successfully" });
+            } else {
+                res.json({ success: false, message: "Email or password is incorretly" });
+            }
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
