@@ -7,7 +7,7 @@ async function DeleteRole(roleId) {
     if (!role) {
       throw new Error(`Role with ID ${roleId} not found`);
     }
-    await Role.destroy();
+    await role.destroy();
     return role;
   } catch (error) {
     if (error.name === "SequelizeForeignKeyConstraintError") {
