@@ -72,7 +72,6 @@ module.exports = class DepartmentController {
 
     try {
       const department = await DeleteDepartment(departmentId);
-      console.log(department);
       if (!department) {
         return res.status(404).json({
           message: `Department id ${departmentId} not exists on database`,
