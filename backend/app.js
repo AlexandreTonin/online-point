@@ -29,6 +29,9 @@ app.use("/record", RecordRoutes);
 app.use("/department", DepartmentRoutes);
 app.use("/role", RoleRoutes);
 app.use("/", AuthRoutes);
+app.get("/", (req, res) => {
+  res.json({page: "home"});
+});
 
 // server
 app.listen(process.env.SERVER_PORT, () => {
