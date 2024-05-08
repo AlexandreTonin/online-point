@@ -3,6 +3,8 @@ const CreateEmployee = require("../services/CreateEmployee");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/helpers/generateToken");
 const GetEmployee = require("../services/GetEmployee");
+const UpdateEmployee = require("../services/UpdateEmployee");
+const GetEmployeeByToken = require("../services/GetEmployeeByToken");
 
 module.exports = class AuthController {
     static async Register(req, res) {
@@ -73,26 +75,54 @@ module.exports = class AuthController {
             const employeeHashedPassword = employee.password;
             const passwordMatch = await bcrypt.compare(password, employeeHashedPassword)
             if (passwordMatch) {
-                res.json({ success: true, message: "Logged successfully" });
+                const token = generateToken(employee.id, email)
+                res.cookie("token", token, { httpOnly: true, secure: true });
+                const userbyToken = await GetEmployeeByToken(token)
+                console.log(userbyToken)
+                //res.json({ success: true, message: "Logged successfully", token: token });
+                res.redirect("/");
             } else {
                 res.json({ success: false, message: "Email or password is incorretly" });
             }
         } catch (error) {
+            console.error(error)
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
     static async Logout(req, res) {
+
         try {
-            res.json({ success: true, message: "Logout successfully" });
+            res.clearCookie("token");
+            res.redirect("/");
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
     }
 
     static async ResetPassword(req, res) {
+        // In the future I will add a token to confirm that the owner of the email entered to reset the password safely
+        
+        const { email, password } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, error: "Email is required" });
+        }
+
+        if (!password) {
+            return res.status(400).json({ success: false, error: "Password is required" });
+        }
+
+        const emailExists = await CheckEmail(email)
+        if(!emailExists) {
+            return res.status(400).json({ success: false, error: "This email is not registered" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
         try {
-            res.json({ success: true, message: "User password reset successfully" });
+            const employeeUpdate = await UpdateEmployee(null, email, { password: hashedPassword });
+            res.json({ success: true, message: "Password reset successfully" });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }
