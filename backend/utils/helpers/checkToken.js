@@ -10,7 +10,7 @@ const checkToken = (req, res, next) => {
   const token = getToken(req);
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized 2" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
