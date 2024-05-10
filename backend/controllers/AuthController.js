@@ -1,10 +1,11 @@
 const CheckEmail = require("../services/CheckEmail");
-const CreateEmployee = require("../services/CreateEmployee");
+const CreateModel = require("../services/CreateModel");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/helpers/generateToken");
 const GetEmployee = require("../services/GetEmployee");
 const UpdateEmployee = require("../services/UpdateEmployee");
 const GetEmployeeByToken = require("../services/GetEmployeeByToken");
+const Employee = require("../models/Employee");
 
 module.exports = class AuthController {
     static async Register(req, res) {
@@ -39,7 +40,7 @@ module.exports = class AuthController {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         try {
-            const newEmployee = await CreateEmployee(name, roleId, departmentId, email, hashedPassword);
+            const newEmployee = await CreateModel(Employee, { name, roleId, departmentId, email, password: hashedPassword });
             const employeeId = newEmployee.id;
             const token = await generateToken(employeeId, email)
             res.cookie("token", token, { httpOnly: true, secure: true });
@@ -102,7 +103,7 @@ module.exports = class AuthController {
 
     static async ResetPassword(req, res) {
         // In the future I will add a token to confirm that the owner of the email entered to reset the password safely
-        
+
         const { email, password } = req.body;
 
         if (!email) {
@@ -114,7 +115,7 @@ module.exports = class AuthController {
         }
 
         const emailExists = await CheckEmail(email)
-        if(!emailExists) {
+        if (!emailExists) {
             return res.status(400).json({ success: false, error: "This email is not registered" });
         }
 

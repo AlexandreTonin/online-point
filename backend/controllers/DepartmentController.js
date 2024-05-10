@@ -1,5 +1,5 @@
 const Department = require("../models/Department");
-const CreateDepartment = require("../services/CreateDepartment");
+const CreateModel = require("../services/CreateModel");
 const DeleteDepartment = require("../services/DeleteDepartment");
 const GetDepartment = require("../services/GetDepartment");
 const UpdateDepartment = require("../services/UpdateDepartment");
@@ -15,7 +15,7 @@ module.exports = class DepartmentController {
     }
 
     try {
-      const newDepartment = await CreateDepartment(departmentName);
+      const newDepartment = await CreateModel(Department, { name: departmentName });
       return res.status(201).json({
         success: true,
         message: "Department created successfully",

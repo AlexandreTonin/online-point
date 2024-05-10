@@ -1,4 +1,5 @@
-const CreateRole = require("../services/CreateRole");
+const Role = require("../models/Role");
+const CreateModel = require("../services/CreateModel");
 const DeleteRole = require("../services/DeleteRole");
 const GetRole = require("../services/GetRole");
 const UpdateRole = require("../services/UpdateRole");
@@ -14,7 +15,7 @@ module.exports = class RoleController {
     }
 
     try {
-      const newRole = await CreateRole(roleName);
+      const newRole = await CreateModel(Role, { name: roleName });
       return res.status(201).json({
         success: true,
         message: "Role created successfully",
